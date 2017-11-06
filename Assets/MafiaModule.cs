@@ -8,7 +8,7 @@ using Rnd = UnityEngine.Random;
 
 /// <summary>
 /// On the Subject of Mafia
-/// Created by Timwi
+/// Created by MarioXMan and Timwi
 /// </summary>
 public class MafiaModule : MonoBehaviour
 {
