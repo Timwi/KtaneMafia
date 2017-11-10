@@ -138,8 +138,16 @@ public class MafiaModule : MonoBehaviour
             num++;
         Debug.LogFormat("[Mafia #{0}] First matching suspect is: {1} ({2}).", _moduleId, num, _allSuspects[(num - 1) % _allSuspects.Length]);
 
-        var eliminated = new List<Suspect>();
         var left = new List<Suspect>(_suspects);
+        if (Bomb.GetIndicators().Count() >= 2)
+        {
+            left.Reverse();
+            Debug.LogFormat("[Mafia #{0}] Eliminating suspects in counter-clockwise order.", _moduleId);
+        }
+        else
+            Debug.LogFormat("[Mafia #{0}] Eliminating suspects in clockwise order.", _moduleId);
+
+        var eliminated = new List<Suspect>();
         var ix = left.IndexOf(_allSuspects[(num - 1) % _allSuspects.Length]);
         var lastDigit = Bomb.GetSerialNumberNumbers().Last();
         for (int i = 0; i < _numSuspects - 1; i++)
