@@ -24,6 +24,7 @@ public class MafiaModule : MonoBehaviour
     private Suspect[] _suspects;
     private Suspect _godfather;
     private bool _isSolved;
+    private bool _animating;
     private static Suspect[] _allSuspects = (Suspect[]) Enum.GetValues(typeof(Suspect));
 
     private const int _numSuspects = 8;
@@ -87,7 +88,7 @@ public class MafiaModule : MonoBehaviour
         _moduleId = _moduleIdCounter++;
         _isSolved = false;
 
-        StartCoroutine(Initialize());
+        StartCoroutine(Initialize(firstRun: true, startFrom: Rnd.Range(0, 8)));
 
         for (int i = 0; i < StickFigures.Length; i++)
             StickFigures[i].OnInteract = getInteract(i);
@@ -100,29 +101,52 @@ public class MafiaModule : MonoBehaviour
             Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, StickFigures[i].transform);
             StickFigures[i].AddInteractionPunch();
 
-            if (_isSolved)
+            if (_isSolved || _animating)
                 return false;
 
             if (_suspects[i] == _godfather)
             {
                 Debug.LogFormat("[Mafia #{0}] Clicked {1}: correct.", _moduleId, _suspects[i]);
                 Module.HandlePass();
+                StartCoroutine(Done(startFrom: i));
                 _isSolved = true;
             }
             else
             {
                 Debug.LogFormat("[Mafia #{0}] Clicked {1}: wrong.", _moduleId, _suspects[i]);
                 Module.HandleStrike();
+                StartCoroutine(Initialize(firstRun: false, startFrom: i));
             }
             return false;
         };
     }
 
-    private IEnumerator Initialize()
+    private IEnumerator Done(int startFrom)
     {
+        for (int i = 1; i < _numSuspects; i++)
+        {
+            StickFigures[(i + startFrom) % _numSuspects].gameObject.SetActive(false);
+            yield return new WaitForSeconds(.07f);
+        }
+    }
+
+    private IEnumerator Initialize(bool firstRun, int startFrom)
+    {
+        _animating = true;
         yield return null;
-        _startingTime = Bomb.GetTime() / 60;
-        Debug.LogFormat("[Mafia #{0}] Bomb starting time: {1} minutes", _moduleId, _startingTime);
+
+        if (firstRun)
+        {
+            _startingTime = Bomb.GetTime() / 60;
+            Debug.LogFormat("[Mafia #{0}] Bomb starting time: {1} minutes", _moduleId, _startingTime);
+        }
+
+        for (int i = 0; i < _numSuspects; i++)
+        {
+            StickFigures[(i + startFrom) % _numSuspects].gameObject.SetActive(false);
+            if (!firstRun)
+                yield return new WaitForSeconds(.05f);
+        }
 
         _suspects = _allSuspects.ToArray().Shuffle().Take(_numSuspects).ToArray();
         var positions = "top left|top right|right top|right bottom|bottom right|bottom left|left bottom|left top".Split('|');
@@ -161,5 +185,14 @@ public class MafiaModule : MonoBehaviour
         Debug.LogFormat("[Mafia #{0}] Last remaining suspect is {1}.", _moduleId, left[0]);
         _godfather = _suspectInfos[left[0]].GetGodfather(Bomb, _suspects, eliminated.ToArray(), _startingTime);
         Debug.LogFormat("[Mafia #{0}] Godfather is {1}.", _moduleId, _godfather);
+
+        yield return new WaitForSeconds(1.5f);
+        var startFrom2 = Rnd.Range(0, _numSuspects);
+        for (int i = 0; i < _numSuspects; i++)
+        {
+            StickFigures[(i + startFrom2) % _numSuspects].gameObject.SetActive(true);
+            yield return new WaitForSeconds(.15f);
+        }
+        _animating = false;
     }
 }
