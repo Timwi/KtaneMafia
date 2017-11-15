@@ -69,7 +69,7 @@ public class MafiaModule : MonoBehaviour
         new SuspectInfo(Suspect.Thomas, (bomb, suspects, eliminated) => new[] { "Mouse In The Maze", "3D Maze", "Hexamaze" }.Intersect(bomb.GetModuleNames()).Any() ? Suspect.Thomas : suspects.After(Suspect.Thomas, 2)),
         new SuspectInfo(Suspect.Sam, (bomb, suspects, eliminated, startingTime) => _suspectInfos[eliminated.Last()].GetGodfather(bomb, suspects, eliminated, startingTime) == eliminated.Last() ? Suspect.Sam : eliminated.Last()),
         new SuspectInfo(Suspect.Duke, (bomb, suspects, eliminated) => _allSuspects.IndexOf(eliminated.Last()) >= 25 ? eliminated.Last() : Suspect.Duke),
-        new SuspectInfo(Suspect.Jack, (bomb, suspects, eliminated) => { var ssn = suspects[suspects.IndexOf(Suspect.Lenny) ^ 1]; return ssn.ToString().Length == 4 ? ssn : Suspect.Jack; }),
+        new SuspectInfo(Suspect.Jack, (bomb, suspects, eliminated) => { var ssn = suspects[suspects.IndexOf(Suspect.Jack) ^ 1]; return ssn.ToString().Length == 4 ? ssn : Suspect.Jack; }),
         new SuspectInfo(Suspect.Bill, (bomb, suspects, eliminated) => new[] { "Friendship", "Semaphore", "Yahtzee" }.Select(name => bomb.GetModuleNames().Count(n => n == name)).Sum() == 1 ? eliminated[1] : Suspect.Bill),
         new SuspectInfo(Suspect.Ronny, (bomb, suspects, eliminated) => new[] { "The Button", "Capacitor Discharge", "Complicated Wires", "Keypads", "Knobs", "Mazes", "Memory", "Morse Code", "Passwords", "Simon Says", "Venting Gas", "Who's on First", "Wire Sequences", "Wires" }.Intersect(bomb.GetModuleNames()).Any() && bomb.GetPortCount() < 4 ? Suspect.Ronny : eliminated[0]),
         new SuspectInfo(Suspect.Terry, (bomb, suspects, eliminated) => bomb.GetBatteryCount() >= 3 ? eliminated[2] : Suspect.Terry),
