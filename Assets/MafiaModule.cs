@@ -195,4 +195,28 @@ public class MafiaModule : MonoBehaviour
         }
         _animating = false;
     }
+
+#pragma warning disable 414
+    private string TwitchHelpMessage = @"Use !{0} execute <name> to execute the godfather.";
+#pragma warning restore 414
+
+    private IEnumerator ProcessTwitchCommand(string command)
+    {
+        var pieces = command.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+        if (pieces.Length == 2 && pieces[0].Equals("execute", StringComparison.InvariantCultureIgnoreCase) && !_isSolved && !_animating)
+        {
+            yield return null;
+            for (int i = 0; i < _suspects.Length; i++)
+            {
+                if (_suspects[i].ToString().Equals(pieces[1], StringComparison.InvariantCultureIgnoreCase))
+                {
+                    StickFigures[i].OnInteract();
+                    yield return new WaitForSeconds(.5f);
+                    yield break;
+                }
+            }
+            yield return string.Format("sendtochat Who is {0}? Make sure you spell the name right.", pieces[1]);
+        }
+    }
 }
