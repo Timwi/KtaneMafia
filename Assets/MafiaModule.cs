@@ -41,7 +41,7 @@ public class MafiaModule : MonoBehaviour
         new SuspectInfo(Suspect.Lacy, (bomb, suspects, eliminated) => bomb.GetModuleNames().Count < 20 ? suspects[suspects.IndexOf(Suspect.Lacy) ^ 1] : Suspect.Lacy),
         new SuspectInfo(Suspect.Claire, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(new[] { "Creation", "FizzBuzz", "Wire Placement" }).Any() ? eliminated.Last() : Suspect.Claire),
         new SuspectInfo(Suspect.Kenny, (bomb, suspects, eliminated) => bomb.GetOffIndicators().Any() ? Suspect.Kenny : suspects.After(eliminated[0], skip: Suspect.Kenny)),
-        new SuspectInfo(Suspect.Rick, (bomb, suspects, eliminated) => bomb.GetPortPlates().Any(pp => pp.Length == 0) ? suspects.After(Suspect.Rick) : Suspect.Rick),
+        new SuspectInfo(Suspect.Rick, (bomb, suspects, eliminated) => bomb.GetPortPlates().Any(pp => pp.Length == 0) ? suspects.After(Suspect.Rick, suspects.Length - 1) : Suspect.Rick),
         new SuspectInfo(Suspect.Walter, (bomb, suspects, eliminated) => bomb.GetSerialNumberLetters().Any(ch => "WALTER".Contains(ch)) ? eliminated[0] : Suspect.Walter),
         new SuspectInfo(Suspect.Bonnie, (bomb, suspects, eliminated) => suspects.FirstAfter(Suspect.Bonnie, s => s.ToString().StartsWith("B"))),
         new SuspectInfo(Suspect.Luke, (bomb, suspects, eliminated) => _allSuspects.First(s => s != Suspect.Luke && suspects.Contains(s))),
@@ -78,7 +78,7 @@ public class MafiaModule : MonoBehaviour
         new SuspectInfo(Suspect.Cob, (bomb, suspects, eliminated) => bomb.GetModuleNames().AnyDuplicates() ? suspects.Where(s => s != Suspect.Cob).MaxElement(s => s.ToString().Length) : Suspect.Cob),
         new SuspectInfo(Suspect.Ash, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(m => m.Contains("Monsplode")) ? eliminated.Last() : Suspect.Ash),
         new SuspectInfo(Suspect.Don, (bomb, suspects, eliminated) => Suspect.Don),
-        new SuspectInfo(Suspect.Jerry, (bomb, suspects, eliminated, startingTime) => bomb.GetModuleNames().Count < startingTime ? suspects.After(Suspect.Jerry) : Suspect.Jerry),
+        new SuspectInfo(Suspect.Jerry, (bomb, suspects, eliminated, startingTime) => bomb.GetModuleNames().Count < startingTime ? suspects.After(Suspect.Jerry, suspects.Length - 1) : Suspect.Jerry),
         new SuspectInfo(Suspect.Simon, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(m => m.Contains("Simon")) ? Suspect.Simon : suspects[suspects.IndexOf(Suspect.Simon) ^ 1])
     )
         .ToDictionary(f => f.Name);
