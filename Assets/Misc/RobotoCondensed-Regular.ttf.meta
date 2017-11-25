@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 6b0d71ff0a37f364ca6008fdbbbf54c7
-timeCreated: 1509688054
+guid: ea4654539fec7ae4399b79008d0600da
+timeCreated: 1511577474
 licenseType: Free
 TrueTypeFontImporter:
   serializedVersion: 4
@@ -9,8 +9,9 @@ TrueTypeFontImporter:
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
+  fontName: Roboto Condensed
   fontNames:
-  - Bernard MT Condensed
+  - Roboto Condensed
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
