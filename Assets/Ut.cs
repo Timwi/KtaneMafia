@@ -83,6 +83,23 @@ namespace Mafia
             return false;
         }
 
+        public static IEnumerable<T> CycleTo<T>(this IEnumerable<T> source, T element)
+        {
+            var previousItems = new List<T>();
+            var found = false;
+            foreach (var item in source)
+            {
+                if (Equals(item, element))
+                    found = true;
+                else if (found)
+                    yield return item;
+                else
+                    previousItems.Add(item);
+            }
+            foreach (var item in previousItems)
+                yield return item;
+        }
+
         /// <summary>
         ///     Returns the first element from the input sequence for which the value selector returns the largest value.</summary>
         /// <exception cref="InvalidOperationException">
