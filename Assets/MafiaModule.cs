@@ -66,7 +66,7 @@ public class MafiaModule : MonoBehaviour
         new SuspectInfo(Suspect.Nate, (bomb, suspects, eliminated) => bomb.GetOnIndicators().Count() > bomb.GetOffIndicators().Count() ? suspects.After(Suspect.Nate) : Suspect.Nate),
         new SuspectInfo(Suspect.Cher, (bomb, suspects, eliminated) => bomb.GetPortCount() > 0 && bomb.GetSolvableModuleNames().Count == bomb.GetModuleNames().Count ? eliminated.Last() : Suspect.Cher),
         new SuspectInfo(Suspect.Wally, (bomb, suspects, eliminated) => bomb.GetSerialNumberLetters().Intersect(bomb.GetIndicators().SelectMany(ind => ind)).Any() ? suspects[suspects.IndexOf(Suspect.Wally) ^ 1] : Suspect.Wally),
-        new SuspectInfo(Suspect.Thomas, (bomb, suspects, eliminated) => new[] { "Mouse In The Maze", "3D Maze", "Hexamaze", "Maze" }.Intersect(bomb.GetModuleNames()).Any() ? Suspect.Thomas : suspects.After(Suspect.Thomas, suspects.Length - 2)),
+        new SuspectInfo(Suspect.Thomas, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(name => name.Contains("Maze") || name.Contains("maze")) ? Suspect.Thomas : suspects.After(Suspect.Thomas, suspects.Length - 2)),
         new SuspectInfo(Suspect.Sam, (bomb, suspects, eliminated, startingTime) => _suspectInfos[eliminated.Last()].GetGodfather(bomb, suspects, eliminated, startingTime) == eliminated.Last() ? Suspect.Sam : eliminated.Last()),
         new SuspectInfo(Suspect.Duke, (bomb, suspects, eliminated) => _allSuspects.IndexOf(eliminated.Last()) >= 25 ? eliminated.Last() : Suspect.Duke),
         new SuspectInfo(Suspect.Jack, (bomb, suspects, eliminated) => { var ssn = suspects[suspects.IndexOf(Suspect.Jack) ^ 1]; return ssn.ToString().Length == 4 ? ssn : Suspect.Jack; }),
