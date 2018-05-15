@@ -60,6 +60,24 @@ namespace Mafia
         Red,
         Yellow
     }
+    
+    public enum NumIndicatorColor
+    {
+        Black,
+        Blue,
+        Brown,
+        Gray,
+        Green,
+        Lime,
+        Orange,
+        Pink,
+        Purple,
+        Red,
+        Sky,
+        Teak,
+        White,
+        Yellow
+    }
 
     /// <summary>
     /// Some helper extensions methods for the KMBombInfo class.
@@ -74,7 +92,10 @@ namespace Mafia
         private class IndicatorJSON
         {
             public string label = null;
+            public string display = null;
             public string on = null;
+            public string color = null;
+            public string isNumbered = null;
 
             public bool IsOn()
             {
@@ -82,6 +103,13 @@ namespace Mafia
                 bool.TryParse(on, out isOn);
                 return isOn;
             }
+            
+            public bool IsNumbered()
+            {
+                bool isNumbered = false;
+                bool.TryParse(isNumbered, out isNumbered);
+                return isNumbered;
+            }            
         }
 
         private class ColorIndicatorJSON
@@ -180,6 +208,21 @@ namespace Mafia
         public static bool IsIndicatorColorPresent(this KMBombInfo bombInfo, string indicatorColor)
         {
             return GetColoredIndicators(bombInfo, indicatorColor).Any();
+        }
+        
+        public static bool IsNumIndicatorPresent(this KMBombInfo bombInfo, Indicator indicatorLabel)
+        {
+            return IsNumIndicatorPresent(bombInfo, indicatorLabel.ToString())
+        }
+                                                     
+        public static bool IsNumIndicatorPresent(this KMBombInfo bombInfo, string indicatorLabel)
+        {
+            return GetIndicatorEntries(bombInfo).Any((x) => x.IsNumbered() && (x.label == indicatorLabel || x.display == indicatorLabel) 
+        }
+        
+        public static bool IsAnyNumIndicatorPresent(this KMBombInfo bombInfo)
+        {
+            return GetIndicatorEntries(bombInfo).Any((x) => x.IsNumbered())
         }
 
         public static bool IsIndicatorOn(this KMBombInfo bombInfo, Indicator indicatorLabel)
