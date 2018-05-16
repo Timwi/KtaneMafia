@@ -74,7 +74,7 @@ namespace Mafia
         Purple,
         Red,
         Sky,
-        Teak,
+        Teal,
         White,
         Yellow
     }
