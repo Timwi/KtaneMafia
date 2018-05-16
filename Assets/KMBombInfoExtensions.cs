@@ -240,6 +240,20 @@ namespace Mafia
             return GetIndicatorEntries(bombInfo).Any((x) => x.IsNumbered() && indicatorColor.ToLowerInvariant.Equals(x.color));
         }
 
+        public static IEnumerable<string> GetNumIndicators(this KMBombInfo bombInfo)
+        {
+            return GetIndicatorEntries(bombInfo)
+                .Where((x) => x.IsNumbered())
+                .Select((x) => x.label);
+        }
+
+        public static IEnumerable<string> GetNumIndicatorsColor(this KMBombInfo bombInfo, string indicatorColor)
+        {
+            return GetIndicatorEntries(bombInfo)
+                .Where((x) => x.IsNumbered() && indicatorColor.Equals(x.color))
+                .Select((x) => x.label);
+        }
+
         public static bool IsIndicatorOn(this KMBombInfo bombInfo, Indicator indicatorLabel)
         {
             return bombInfo.IsIndicatorOn(indicatorLabel.ToString());
