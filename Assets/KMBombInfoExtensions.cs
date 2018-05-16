@@ -250,7 +250,7 @@ namespace Mafia
         public static IEnumerable<string> GetNumIndicatorsColor(this KMBombInfo bombInfo, string indicatorColor)
         {
             return GetIndicatorEntries(bombInfo)
-                .Where((x) => x.IsNumbered() && indicatorColor.Equals(x.color))
+                .Where((x) => x.IsNumbered() && indicatorColor.ToLowerInvariant.Equals(x.color))
                 .Select((x) => x.label);
         }
 
