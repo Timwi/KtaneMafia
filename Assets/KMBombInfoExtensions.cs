@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -61,6 +61,24 @@ namespace Mafia
         Yellow
     }
 
+    public enum NumIndicatorColor
+    {
+        Black,
+        Blue,
+        Brown,
+        Gray,
+        Green,
+        Lime,
+        Orange,
+        Pink,
+        Purple,
+        Red,
+        Sky,
+        Teal,
+        White,
+        Yellow
+    }
+
     /// <summary>
     /// Some helper extensions methods for the KMBombInfo class.
     /// </summary>
@@ -74,13 +92,23 @@ namespace Mafia
         private class IndicatorJSON
         {
             public string label = null;
+            public string display = null;
             public string on = null;
+            public string color = null;
+            public string isNumbered = null;
 
             public bool IsOn()
             {
                 bool isOn = false;
                 bool.TryParse(on, out isOn);
                 return isOn;
+            }
+
+            public bool IsNumbered()
+            {
+                bool isNumbered = false;
+                bool.TryParse(isNumbered, out isNumbered);
+                return isNumbered;
             }
         }
 
@@ -182,6 +210,50 @@ namespace Mafia
             return GetColoredIndicators(bombInfo, indicatorColor).Any();
         }
 
+        public static bool IsNumIndicatorPresent(this KMBombInfo bombInfo, Indicator indicatorLabel)
+        {
+            return IsNumIndicatorPresent(bombInfo, indicatorLabel.ToString());
+        }
+
+        public static bool IsNumIndicatorPresent(this KMBombInfo bombInfo, string indicatorLabel)
+        {
+            return GetIndicatorEntries(bombInfo).Any((x) => x.IsNumbered() && (indicatorLabel.Equals(x.label) || indicatorLabel.Equals(x.display)));
+        }
+
+        public static bool IsAnyNumIndicatorPresent(this KMBombInfo bombInfo)
+        {
+            return GetIndicatorEntries(bombInfo).Any((x) => x.IsNumbered());
+        }
+
+        public static bool IsNumIndicatorColored(this KMBombInfo bombInfo, Indicator indicatorLabel, string indicatorColor)
+        {
+            return IsNumIndicatorColored(bombInfo, indicatorLabel.ToString(), indicatorColor);
+        }
+
+        public static bool IsNumIndicatorColored(this KMBombInfo bombInfo, string indicatorLabel, string indicatorColor)
+        {
+            return GetIndicatorEntries(bombInfo).Any((x) => x.IsNumbered() && (indicatorLabel.Equals(x.label) || indicatorLabel.Equals(x.display)) && indicatorColor.ToLowerInvariant.Equals(x.color));
+        }
+
+        public static bool IsAnyNumIndicatorColored(this KMBombInfo bombInfo, string indicatorColor)
+        {
+            return GetIndicatorEntries(bombInfo).Any((x) => x.IsNumbered() && indicatorColor.ToLowerInvariant.Equals(x.color));
+        }
+
+        public static IEnumerable<string> GetNumIndicators(this KMBombInfo bombInfo)
+        {
+            return GetIndicatorEntries(bombInfo)
+                .Where((x) => x.IsNumbered())
+                .Select((x) => x.label);
+        }
+
+        public static IEnumerable<string> GetNumIndicatorsColor(this KMBombInfo bombInfo, string indicatorColor)
+        {
+            return GetIndicatorEntries(bombInfo)
+                .Where((x) => x.IsNumbered() && indicatorColor.ToLowerInvariant.Equals(x.color))
+                .Select((x) => x.label);
+        }
+
         public static bool IsIndicatorOn(this KMBombInfo bombInfo, Indicator indicatorLabel)
         {
             return bombInfo.IsIndicatorOn(indicatorLabel.ToString());
@@ -276,7 +348,7 @@ namespace Mafia
 
         public static int GetBatteryCount(this KMBombInfo bombInfo, Battery batteryType)
         {
-            return GetBatteryCount(bombInfo, (int) batteryType);
+            return GetBatteryCount(bombInfo, (int)batteryType);
         }
 
         public static int GetBatteryCount(this KMBombInfo bombInfo, int batteryType)
@@ -292,7 +364,7 @@ namespace Mafia
 
         public static int GetBatteryHolderCount(this KMBombInfo bombInfo, Battery batteryType)
         {
-            return GetBatteryHolderCount(bombInfo, (int) batteryType);
+            return GetBatteryHolderCount(bombInfo, (int)batteryType);
         }
 
         public static int GetBatteryHolderCount(this KMBombInfo bombInfo, int batteryType)
