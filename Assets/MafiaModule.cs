@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Mafia;
+using Newtonsoft.Json;
 using UnityEngine;
 using Rnd = UnityEngine.Random;
 
@@ -29,52 +30,63 @@ public class MafiaModule : MonoBehaviour
 
     private const int _numSuspects = 8;
 
+    private static string[] _TimModules = new[] { "Friendship", "Only Connect", "Battleship", "Marble Tumble" };
+    private static string[] _LacyModules = new[] { "Boolean Venn Diagram", "Bitwise Operations" };  // plus containing “Logic”
+    private static string[] _LukeModules = new[] { "Password Sequences", "U.S. Election", "Dating Simulator", "Meme Generator" };
+    private static string[] _JimModules = new[] { "Chord Qualities", "Rhythms", "The Jukebox" };    // plus containing “Piano Keys”
+    private static string[] _BobModules = new[] { "Laundry", "Morse-A-Maze", "Big Circle", "Painting", "Dr. Doctor", "The Code" };
+    private static string[] _GaryModules = new[] { "Cheap Checkout", "Ice Cream", "Cooking" };
+    private static string[] _SamModules = new[] { "Creation", "The Gamepad", "Minesweeper", "Skewed Slots" };
+    private static string[] _EdModules = new[] { "Double-Oh", "Gridlock", "Human Resources" };
+    private static string[] _VanillaModules = new[] { "The Button", "Needy Capacitor", "Complicated Wires", "Keypad", "Needy Knob", "Maze", "Memory", "Morse Code", "Password", "Simon Says", "Needy Vent Gas", "Who's on First", "Wire Sequence", "Wires" };
+    private static string[] _NickModules = new[] { "Zoo", "Nonogram", "Murder", "X01" };
+
     private static Dictionary<Suspect, SuspectInfo> _suspectInfos = Ut.NewArray(
         new SuspectInfo(Suspect.Rob, (bomb, suspects, eliminated) => bomb.GetSerialNumberLetters().Any(ch => "AEIOU".Contains(ch)) ? suspects.After(Suspect.Rob) : Suspect.Rob),
-        new SuspectInfo(Suspect.Tim, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(new[] { "Only Connect", "Battleship", "S.E.T." }).Any() ? eliminated[0] : Suspect.Tim),
+        new SuspectInfo(Suspect.Tim, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(_TimModules).Any() ? eliminated[0] : Suspect.Tim),
         new SuspectInfo(Suspect.Mary, (bomb, suspects, eliminated) => new[] { Suspect.Bob, Suspect.Walter, Suspect.Cher }.Any(n => suspects.IndexOf(n) != -1) ? Suspect.Mary : suspects[suspects[0] == Suspect.Mary ? 1 : 0]),
         new SuspectInfo(Suspect.Briane, (bomb, suspects, eliminated) => bomb.IsTwoFactorPresent() || bomb.IsIndicatorOn(Indicator.CAR) ? eliminated.Last() : Suspect.Briane),
         new SuspectInfo(Suspect.Hunter, (bomb, suspects, eliminated) => bomb.GetPortCount() > bomb.GetBatteryCount() ? suspects.FindOrDefault(Suspect.Rick, eliminated[3]) : Suspect.Hunter),
         new SuspectInfo(Suspect.Macy, (bomb, suspects, eliminated) => suspects.FindOrDefault(Suspect.Tommy, Suspect.Macy)),
         new SuspectInfo(Suspect.John, (bomb, suspects, eliminated) => suspects.Count(s => s.ToString().StartsWith("J")) == 1 ? suspects[suspects.IndexOf(Suspect.John) ^ 1] : Suspect.John),
         new SuspectInfo(Suspect.Will, (bomb, suspects, eliminated) => (bomb.IsPortPresent(Port.PS2) || bomb.IsPortPresent(Port.DVI)) && bomb.GetSerialNumberNumbers().Any(i => i % 2 == 0) ? eliminated[4] : Suspect.Will),
-        new SuspectInfo(Suspect.Lacy, (bomb, suspects, eliminated) => bomb.GetModuleNames().Count < 20 ? suspects[suspects.IndexOf(Suspect.Lacy) ^ 1] : Suspect.Lacy),
-        new SuspectInfo(Suspect.Claire, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(new[] { "Creation", "FizzBuzz", "Wire Placement" }).Any() ? eliminated.Last() : Suspect.Claire),
+        new SuspectInfo(Suspect.Lacy, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(m => m.Contains("Logic") || _LacyModules.Contains(m)) ? suspects[suspects.IndexOf(Suspect.Lacy) ^ 1] : Suspect.Lacy),
+        new SuspectInfo(Suspect.Claire, (bomb, suspects, eliminated) => bomb.GetModuleNames().Count < 20 ? eliminated.Last() : Suspect.Claire),
         new SuspectInfo(Suspect.Kenny, (bomb, suspects, eliminated) => bomb.GetOffIndicators().Any() ? Suspect.Kenny : suspects.After(eliminated[0], skip: Suspect.Kenny)),
         new SuspectInfo(Suspect.Rick, (bomb, suspects, eliminated) => bomb.GetPortPlates().Any(pp => pp.Length == 0) ? suspects.After(Suspect.Rick, suspects.Length - 1) : Suspect.Rick),
         new SuspectInfo(Suspect.Walter, (bomb, suspects, eliminated) => bomb.GetSerialNumberLetters().Any(ch => "WALTER".Contains(ch)) ? eliminated[0] : Suspect.Walter),
         new SuspectInfo(Suspect.Bonnie, (bomb, suspects, eliminated) => suspects.FirstAfter(Suspect.Bonnie, s => s.ToString().StartsWith("B"))),
-        new SuspectInfo(Suspect.Luke, (bomb, suspects, eliminated) => _allSuspects.First(s => s != Suspect.Luke && suspects.Contains(s))),
-        new SuspectInfo(Suspect.Ed, (bomb, suspects, eliminated) => new[] { 0, 2, 3, 5, 7 }.Contains(bomb.GetSerialNumberNumbers().Last()) ? _allSuspects.Last(s => s != Suspect.Ed && suspects.Contains(s)) : Suspect.Ed),
+        new SuspectInfo(Suspect.Luke, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(_LukeModules).Any() ? Suspect.Luke : _allSuspects.First(s => s != Suspect.Luke && suspects.Contains(s))),
+        new SuspectInfo(Suspect.Bill, (bomb, suspects, eliminated) => new[] { 0, 2, 3, 5, 7 }.Contains(bomb.GetSerialNumberNumbers().Last()) ? _allSuspects.Last(s => s != Suspect.Bill && suspects.Contains(s)) : Suspect.Bill),
         new SuspectInfo(Suspect.Sarah, (bomb, suspects, eliminated) => bomb.GetColoredIndicators().Any() || bomb.IsPortPresent(Port.HDMI) || bomb.GetSerialNumber().Any(ch => "SH3".Contains(ch)) ? eliminated.Last() : Suspect.Sarah),
         new SuspectInfo(Suspect.Larry, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(m => m.ContainsNoCase("color") || m.ContainsNoCase("colour")) ? Suspect.Larry : eliminated[0]),
         new SuspectInfo(Suspect.Kate, (bomb, suspects, eliminated) => bomb.GetSerialNumberLetters().Any(ch => "LOST".Contains(ch)) || bomb.GetModuleNames().Contains("The Swan") ? (suspects.Contains(Suspect.John) ? Suspect.John : suspects[suspects.IndexOf(Suspect.Kate) ^ 1]) : Suspect.Kate),
         new SuspectInfo(Suspect.Stacy, (bomb, suspects, eliminated, startingTime) => _suspectInfos[eliminated[0]].GetGodfather(bomb, suspects, eliminated, startingTime) == eliminated[0] ? Suspect.Stacy : eliminated[0]),
         new SuspectInfo(Suspect.Diane, (bomb, suspects, eliminated) => bomb.IsPortPresent(Port.VGA) || bomb.IsPortPresent(Port.USB) || bomb.GetModuleNames().Contains("The Screw") ? eliminated.Last() : Suspect.Diane),
         new SuspectInfo(Suspect.Mac, (bomb, suspects, eliminated) => bomb.GetPortPlates().Any(pp => pp.Contains(Port.Parallel.ToString()) && pp.Contains(Port.Serial.ToString())) ? eliminated[5] : Suspect.Mac),
-        new SuspectInfo(Suspect.Jim, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(new[] { "Piano Keys", "Cruel Piano Keys", "Chord Qualities", "Rhythms" }).Any() ? suspects[suspects.IndexOf(Suspect.Jim) ^ 1] : Suspect.Jim),
-        new SuspectInfo(Suspect.Ron, (bomb, suspects, eliminated) => suspects.Contains(Suspect.Bonnie) ? Suspect.Bonnie : Suspect.Ron),
+        new SuspectInfo(Suspect.Jim, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(m => _JimModules.Contains(m) || m.Contains("Piano Keys")) ? suspects[suspects.IndexOf(Suspect.Jim) ^ 1] : Suspect.Jim),
+        new SuspectInfo(Suspect.Clyde, (bomb, suspects, eliminated) => suspects.Contains(Suspect.Bonnie) ? Suspect.Bonnie : Suspect.Clyde),
         new SuspectInfo(Suspect.Tommy, (bomb, suspects, eliminated) => bomb.GetBatteryCount() == 0 && bomb.GetPortCount() == 0 ? eliminated[3] : Suspect.Tommy),
         new SuspectInfo(Suspect.Lenny, (bomb, suspects, eliminated) => { var ssn = suspects[suspects.IndexOf(Suspect.Lenny) ^ 1]; return ssn.ToString().Length == 3 ? Suspect.Lenny : ssn; }),
-        new SuspectInfo(Suspect.Molly, (bomb, suspects, eliminated) => suspects[4]),
+        new SuspectInfo(Suspect.Molly, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(m => m.StartsWith("M") || m.StartsWith("The M")) ? Suspect.Molly : suspects.After(Suspect.Molly)),
         new SuspectInfo(Suspect.Benny, (bomb, suspects, eliminated) => new[] { Suspect.Hunter, Suspect.Cher, Suspect.Nick }.Contains(eliminated[0]) ? Suspect.Benny : suspects.After(Suspect.Benny, 3)),
-        new SuspectInfo(Suspect.Phil, (bomb, suspects, eliminated, startingTime) => new[] { Suspect.Walter, Suspect.Ed, Suspect.Rob }.Any(s => _suspectInfos[s].GetGodfather(bomb, suspects, eliminated, startingTime) == s) ? suspects.After(Suspect.Phil) : Suspect.Phil),
-        new SuspectInfo(Suspect.Bob, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(new[] { "Laundry", "Morse-A-Maze", "Big Circle", "Painting" }).Any() || bomb.IsIndicatorOn(Indicator.BOB) ? eliminated[2] : Suspect.Bob),
-        new SuspectInfo(Suspect.Gary, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(new[] { "Cheap Checkout", "Ice Cream" }).Any() ? eliminated.Last() : Suspect.Gary),
-        new SuspectInfo(Suspect.Ted, (bomb, suspects, eliminated, startingTime) => new[] { Suspect.Thomas, Suspect.Bob, Suspect.Claire }.Count(s => _suspectInfos[s].GetGodfather(bomb, suspects, eliminated, startingTime) == s) == 2 ? suspects[suspects.IndexOf(Suspect.Ted) ^ 1] : Suspect.Ted),
+        new SuspectInfo(Suspect.Phil, (bomb, suspects, eliminated) => suspects[4]),
+        new SuspectInfo(Suspect.Bob, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(_BobModules).Any() || bomb.IsIndicatorOn(Indicator.BOB) ? eliminated[2] : Suspect.Bob),
+        new SuspectInfo(Suspect.Gary, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(_GaryModules).Any() ? eliminated.Last() : Suspect.Gary),
+        new SuspectInfo(Suspect.Ted, (bomb, suspects, eliminated) => bomb.GetModuleNames().Count(m => m.StartsWith("The")) >= 2 ? suspects[suspects.IndexOf(Suspect.Ted) ^ 1] : Suspect.Ted),
         new SuspectInfo(Suspect.Kim, (bomb, suspects, eliminated) => _allSuspects.IndexOf(eliminated[0]) < 25 ? eliminated[0] : Suspect.Kim),
         new SuspectInfo(Suspect.Nate, (bomb, suspects, eliminated) => bomb.GetOnIndicators().Count() > bomb.GetOffIndicators().Count() ? suspects.After(Suspect.Nate) : Suspect.Nate),
         new SuspectInfo(Suspect.Cher, (bomb, suspects, eliminated) => bomb.GetPortCount() > 0 && bomb.GetSolvableModuleNames().Count == bomb.GetModuleNames().Count ? eliminated.Last() : Suspect.Cher),
-        new SuspectInfo(Suspect.Wally, (bomb, suspects, eliminated) => bomb.GetSerialNumberLetters().Intersect(bomb.GetIndicators().SelectMany(ind => ind)).Any() ? suspects[suspects.IndexOf(Suspect.Wally) ^ 1] : Suspect.Wally),
+        new SuspectInfo(Suspect.Ron, (bomb, suspects, eliminated) => bomb.GetSerialNumberLetters().Intersect(bomb.GetIndicators().SelectMany(ind => ind)).Any() ? suspects[suspects.IndexOf(Suspect.Ron) ^ 1] : Suspect.Ron),
         new SuspectInfo(Suspect.Thomas, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(name => name.Contains("Maze") || name.Contains("maze")) ? Suspect.Thomas : suspects.After(Suspect.Thomas, suspects.Length - 2)),
-        new SuspectInfo(Suspect.Sam, (bomb, suspects, eliminated, startingTime) => _suspectInfos[eliminated.Last()].GetGodfather(bomb, suspects, eliminated, startingTime) == eliminated.Last() ? Suspect.Sam : eliminated.Last()),
+        new SuspectInfo(Suspect.Sam, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(_SamModules).Any() ? eliminated.Last() : Suspect.Sam),
         new SuspectInfo(Suspect.Duke, (bomb, suspects, eliminated) => _allSuspects.IndexOf(eliminated.Last()) >= 25 ? eliminated.Last() : Suspect.Duke),
         new SuspectInfo(Suspect.Jack, (bomb, suspects, eliminated) => { var ssn = suspects[suspects.IndexOf(Suspect.Jack) ^ 1]; return ssn.ToString().Length == 4 ? ssn : Suspect.Jack; }),
-        new SuspectInfo(Suspect.Bill, (bomb, suspects, eliminated) => new[] { "Friendship", "Semaphore", "Yahtzee" }.Select(name => bomb.GetModuleNames().Count(n => n == name)).Sum() == 1 ? eliminated[1] : Suspect.Bill),
-        new SuspectInfo(Suspect.Ronny, (bomb, suspects, eliminated) => new[] { "The Button", "Needy Capacitor", "Complicated Wires", "Keypad", "Needy Knob", "Maze", "Memory", "Morse Code", "Password", "Simon Says", "Needy Vent Gas", "Who's on First", "Wire Sequence", "Wires" }.Intersect(bomb.GetModuleNames()).Any() && bomb.GetPortCount() < 4 ? Suspect.Ronny : eliminated[0]),
-        new SuspectInfo(Suspect.Terry, (bomb, suspects, eliminated) => bomb.GetBatteryCount() >= 3 ? eliminated[2] : Suspect.Terry),
+        new SuspectInfo(Suspect.Ed, (bomb, suspects, eliminated) => bomb.GetModuleNames().Count(n => _EdModules.Contains(n)) == 1 ? eliminated[1] : Suspect.Ed),
+        new SuspectInfo(Suspect.Ronny, (bomb, suspects, eliminated) => _VanillaModules.Intersect(bomb.GetModuleNames()).Any() && bomb.GetPortCount() < 4 ? Suspect.Ronny : eliminated[0]),
+        new SuspectInfo(Suspect.Terry, (bomb, suspects, eliminated) => bomb.GetBatteryCount() >= 3 /*|| bomb.HasNumberedIndicator()*/ ? eliminated[2] : Suspect.Terry),
         new SuspectInfo(Suspect.Claira, (bomb, suspects, eliminated) => { var ports = new[] { Port.RJ45, Port.StereoRCA, Port.PS2 }.Select(p => p.ToString()).ToArray(); return bomb.GetPortPlates().UniquePairs().Any(p => p.One.Intersect(ports).Any() && p.Two.Intersect(ports).Any()) ? suspects[suspects.IndexOf(Suspect.Claira) ^ 1] : Suspect.Claira; }),
-        new SuspectInfo(Suspect.Nick, (bomb, suspects, eliminated) => new[] { "Zoo", "Nonogram", "Murder" }.Intersect(bomb.GetModuleNames()).Any() ? Suspect.Nick : eliminated[0]),
+        new SuspectInfo(Suspect.Nick, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(_NickModules).Any() ? Suspect.Nick : eliminated[0]),
         new SuspectInfo(Suspect.Cob, (bomb, suspects, eliminated) => bomb.GetModuleNames().AnyDuplicates() ? suspects.CycleTo(Suspect.Cob).MaxElement(s => s.ToString().Length) : Suspect.Cob),
         new SuspectInfo(Suspect.Ash, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(m => m.Contains("Monsplode")) ? eliminated.Last() : Suspect.Ash),
         new SuspectInfo(Suspect.Don, (bomb, suspects, eliminated) => Suspect.Don),
