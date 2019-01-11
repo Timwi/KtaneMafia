@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Mafia;
-using Newtonsoft.Json;
 using UnityEngine;
 using Rnd = UnityEngine.Random;
 
@@ -32,11 +31,11 @@ public class MafiaModule : MonoBehaviour
 
     private static readonly string[] _TimModules = new[] { "Friendship", "Only Connect", "Battleship", "Marble Tumble" };
     private static readonly string[] _LacyModules = new[] { "Boolean Venn Diagram", "Bitwise Operations" };  // plus containing “Logic”
-    private static readonly string[] _JimModules = new[] { "Chord Qualities", "Rhythms", "The Jukebox", "Guitar Chords" };    // plus containing “Piano Keys”
+    private static readonly string[] _JimModules = new[] { "Chord Qualities", "Rhythms" };    // plus containing “Piano Keys”
     private static readonly string[] _BobModules = new[] { "Laundry", "Morse-A-Maze", "Big Circle", "Painting", "Dr. Doctor", "The Code" };
     private static readonly string[] _GaryModules = new[] { "Cheap Checkout", "Ice Cream", "Cooking" };
     private static readonly string[] _SamModules = new[] { "Creation", "The Gamepad", "Minesweeper", "Skewed Slots" };
-    private static readonly string[] _EdModules = new[] { "Double-Oh", "Gridlock", "Human Resources", "Lasers" };
+    private static readonly string[] _EdModules = new[] { "Gridlock", "Human Resources", "Lasers" };    // plus containing “Double-Oh”
     private static readonly string[] _VanillaModules = new[] { "The Button", "Needy Capacitor", "Complicated Wires", "Keypad", "Needy Knob", "Maze", "Memory", "Morse Code", "Password", "Simon Says", "Needy Vent Gas", "Who's on First", "Wire Sequence", "Wires" };
     private static readonly string[] _NickModules = new[] { "Zoo", "Nonogram", "Murder", "X01" };
     private static readonly string[] _TedModules = new[] { "Black Hole", "The Sun", "The Moon", "Lightspeed", "Astrology" };
@@ -65,7 +64,7 @@ public class MafiaModule : MonoBehaviour
         new SuspectInfo(Suspect.Stacy, (bomb, suspects, eliminated, startingTime) => bomb.GetModuleNames().Count < startingTime ? eliminated[0] : Suspect.Stacy),
         new SuspectInfo(Suspect.Diane, (bomb, suspects, eliminated) => bomb.IsPortPresent(Port.VGA) || bomb.IsPortPresent(Port.USB) || bomb.GetModuleNames().Contains("The Screw") ? eliminated.Last() : Suspect.Diane),
         new SuspectInfo(Suspect.Mac, (bomb, suspects, eliminated) => bomb.GetPortPlates().Any(pp => pp.Contains(Port.Parallel.ToString()) && pp.Contains(Port.Serial.ToString())) ? eliminated[5] : Suspect.Mac),
-        new SuspectInfo(Suspect.Jim, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(m => _JimModules.Contains(m) || m.Contains("Piano Keys")) ? suspects[suspects.IndexOf(Suspect.Jim) ^ 1] : Suspect.Jim),
+        new SuspectInfo(Suspect.Jim, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(m => _JimModules.Contains(m) || m.Contains("Piano Keys") || m.Contains("Jukebox") || m.Contains("Guitar Chords")) ? suspects[suspects.IndexOf(Suspect.Jim) ^ 1] : Suspect.Jim),
         new SuspectInfo(Suspect.Clyde, (bomb, suspects, eliminated) => suspects.Contains(Suspect.Bonnie) ? Suspect.Bonnie : Suspect.Clyde),
         new SuspectInfo(Suspect.Tommy, (bomb, suspects, eliminated) => bomb.GetBatteryCount() == 0 && bomb.GetPortCount() == 0 ? eliminated[3] : Suspect.Tommy),
         new SuspectInfo(Suspect.Lenny, (bomb, suspects, eliminated) => { var ssn = suspects[suspects.IndexOf(Suspect.Lenny) ^ 1]; return ssn.ToString().Length == 3 ? Suspect.Lenny : ssn; }),
@@ -83,7 +82,7 @@ public class MafiaModule : MonoBehaviour
         new SuspectInfo(Suspect.Sam, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(_SamModules).Any() ? eliminated.Last() : Suspect.Sam),
         new SuspectInfo(Suspect.Duke, (bomb, suspects, eliminated) => _allSuspects.IndexOf(eliminated.Last()) >= 25 ? eliminated.Last() : Suspect.Duke),
         new SuspectInfo(Suspect.Jack, (bomb, suspects, eliminated) => { var ssn = suspects[suspects.IndexOf(Suspect.Jack) ^ 1]; return ssn.ToString().Length == 4 ? ssn : Suspect.Jack; }),
-        new SuspectInfo(Suspect.Ed, (bomb, suspects, eliminated) => bomb.GetModuleNames().Count(n => _EdModules.Contains(n)) == 1 ? eliminated[1] : Suspect.Ed),
+        new SuspectInfo(Suspect.Ed, (bomb, suspects, eliminated) => bomb.GetModuleNames().Count(m => _EdModules.Contains(m) || m.Contains("Double-Oh")) == 1 ? eliminated[1] : Suspect.Ed),
         new SuspectInfo(Suspect.Ronny, (bomb, suspects, eliminated) => _VanillaModules.Intersect(bomb.GetModuleNames()).Any() && bomb.GetPortCount() < 4 ? Suspect.Ronny : eliminated[0]),
         new SuspectInfo(Suspect.Terry, (bomb, suspects, eliminated) => bomb.GetBatteryCount() >= 3 ? eliminated[2] : Suspect.Terry),
         new SuspectInfo(Suspect.Claira, (bomb, suspects, eliminated) => bomb.GetPortPlates().Count(pp => pp.Intersect(new[] { Port.RJ45, Port.StereoRCA, Port.PS2 }.Select(p => p.ToString())).Any()) >= 2 ? suspects[suspects.IndexOf(Suspect.Claira) ^ 1] : Suspect.Claira),
