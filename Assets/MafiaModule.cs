@@ -40,7 +40,7 @@ public class MafiaModule : MonoBehaviour
     private static readonly string[] _VanillaModules = new[] { "The Button", "Needy Capacitor", "Complicated Wires", "Keypad", "Needy Knob", "Maze", "Memory", "Morse Code", "Password", "Simon Says", "Needy Vent Gas", "Who's on First", "Wire Sequence", "Wires" };
     private static readonly string[] _NickModules = new[] { "Zoo", "Nonogram", "Murder", "X01" };
     private static readonly string[] _TedModules = new[] { "Black Hole", "The Sun", "The Moon", "Lightspeed", "Astrology" };
-    private static readonly string[] _JerryModules = new[] { "The Clock", "Rubik's Clock", "The Stopwatch", "Timezone", "The Time Keeper" };
+    private static readonly string[] _JerryModules = new[] { "The Clock", "Rubik’s Clock", "The Stopwatch", "Timezone", "The Time Keeper" };
 
     private static Dictionary<Suspect, SuspectInfo> _suspectInfos = Ut.NewArray(
         new SuspectInfo(Suspect.Rob, (bomb, suspects, eliminated) => bomb.GetSerialNumberLetters().Any(ch => "AEIOU".Contains(ch)) ? suspects.After(Suspect.Rob) : Suspect.Rob),
