@@ -42,7 +42,7 @@ public class MafiaModule : MonoBehaviour
     private static readonly string[] _TedModules = new[] { "Black Hole", "The Sun", "The Moon", "Lightspeed", "Astrology" };
     private static readonly string[] _JerryModules = new[] { "The Clock", "Rubik’s Clock", "The Stopwatch", "Timezone", "The Time Keeper" };
 
-    private static Dictionary<Suspect, SuspectInfo> _suspectInfos = Ut.NewArray(
+    private static readonly Dictionary<Suspect, SuspectInfo> _suspectInfos = Ut.NewArray(
         new SuspectInfo(Suspect.Rob, (bomb, suspects, eliminated) => bomb.GetSerialNumberLetters().Any(ch => "AEIOU".Contains(ch)) ? suspects.After(Suspect.Rob) : Suspect.Rob),
         new SuspectInfo(Suspect.Tim, (bomb, suspects, eliminated) => bomb.GetModuleNames().Intersect(_TimModules).Any() ? eliminated[0] : Suspect.Tim),
         new SuspectInfo(Suspect.Mary, (bomb, suspects, eliminated) => new[] { Suspect.Bob, Suspect.Walter, Suspect.Cher }.Any(n => suspects.IndexOf(n) != -1) ? suspects[suspects[0] == Suspect.Mary ? 1 : 0] : Suspect.Mary),
