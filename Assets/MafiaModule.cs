@@ -51,7 +51,7 @@ public class MafiaModule : MonoBehaviour
         new SuspectInfo(Suspect.Macy, (bomb, suspects, eliminated) => suspects.FindOrDefault(Suspect.Tommy, Suspect.Macy)),
         new SuspectInfo(Suspect.John, (bomb, suspects, eliminated) => suspects.Count(s => s.ToString().StartsWith("J")) == 1 ? suspects[suspects.IndexOf(Suspect.John) ^ 1] : Suspect.John),
         new SuspectInfo(Suspect.Will, (bomb, suspects, eliminated) => (bomb.IsPortPresent(Port.PS2) || bomb.IsPortPresent(Port.DVI)) && bomb.GetSerialNumberNumbers().Any(i => i % 2 == 0) ? eliminated[4] : Suspect.Will),
-        new SuspectInfo(Suspect.Lacy, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(m => m.Contains("Logic") || _LacyModules.Contains(m)) ? suspects[suspects.IndexOf(Suspect.Lacy) ^ 1] : Suspect.Lacy),
+        new SuspectInfo(Suspect.Lacy, (bomb, suspects, eliminated) => bomb.GetModuleNames().Any(m => m.ContainsNoCase("Logic") || _LacyModules.Contains(m)) ? suspects[suspects.IndexOf(Suspect.Lacy) ^ 1] : Suspect.Lacy),
         new SuspectInfo(Suspect.Claire, (bomb, suspects, eliminated) => bomb.GetModuleNames().Count < 20 ? eliminated.Last() : Suspect.Claire),
         new SuspectInfo(Suspect.Kenny, (bomb, suspects, eliminated) => bomb.GetOffIndicators().Any() ? Suspect.Kenny : suspects.After(eliminated[0], skip: Suspect.Kenny)),
         new SuspectInfo(Suspect.Rick, (bomb, suspects, eliminated) => bomb.GetPortPlates().Any(pp => pp.Length == 0) ? suspects.After(Suspect.Rick, suspects.Length - 1) : Suspect.Rick),
