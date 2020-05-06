@@ -232,4 +232,10 @@ public class MafiaModule : MonoBehaviour
             yield return string.Format("sendtochat Who is {0}? Make sure you spell the name right.", pieces[1]);
         }
     }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        StickFigures[Array.IndexOf(_suspects, _godfather)].OnInteract();
+        yield return new WaitForSeconds(.1f);
+    }
 }
