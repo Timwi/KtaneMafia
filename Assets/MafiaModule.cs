@@ -100,11 +100,12 @@ public class MafiaModule : MonoBehaviour
     {
         _moduleId = _moduleIdCounter++;
         _isSolved = false;
-
-        StartCoroutine(Initialize(firstRun: true, startFrom: Rnd.Range(0, 8)));
+        _animating = true;
 
         for (int i = 0; i < StickFigures.Length; i++)
             StickFigures[i].OnInteract = getInteract(i);
+
+        Module.OnActivate += delegate { StartCoroutine(Initialize(firstRun: true, startFrom: Rnd.Range(0, 8))); };
     }
 
     private KMSelectable.OnInteractHandler getInteract(int i)
@@ -146,7 +147,6 @@ public class MafiaModule : MonoBehaviour
     private IEnumerator Initialize(bool firstRun, int startFrom)
     {
         _animating = true;
-        yield return null;
 
         if (firstRun)
         {
